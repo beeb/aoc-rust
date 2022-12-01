@@ -76,7 +76,7 @@ fn main() {
 fn get_today() -> usize {
     let now = Local::now();
     let now_day = now.day();
-    if now.month() == 12 && now_day >= 1 && now_day <= 25 {
+    if now.month() == 12 && (1..=25).contains(&now_day) {
         now_day.try_into().unwrap()
     } else {
         panic!("Today is not a valid Advent of Code day. Please specify a day");
