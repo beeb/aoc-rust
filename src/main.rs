@@ -62,7 +62,9 @@ fn main() {
                 match day {
                     Some(day) => download_input(parse_day(day)),
                     None => {
-                        println!("No day parameter specified, ttempting to download today's input");
+                        println!(
+                            "No day parameter specified, attempting to download today's input"
+                        );
                         let now_day = get_today();
                         println!("Getting input for day {}", now_day);
                         download_input(now_day);
