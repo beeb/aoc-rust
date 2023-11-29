@@ -1,11 +1,12 @@
-mod parser;
-use chrono::prelude::*;
+use std::{fs, time::Instant};
+
+use chrono::{Datelike, Local};
 use clap::{Parser, Subcommand};
+
 use days::*;
-use std::fs;
-use std::time::Instant;
 
 mod days;
+mod parser;
 
 const YEAR: usize = 2022;
 

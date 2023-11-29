@@ -1,5 +1,4 @@
-use nom::error::Error;
-use nom::Err;
+use nom::{error::Error, Err};
 
 #[derive(Debug)]
 pub enum MyErr {
