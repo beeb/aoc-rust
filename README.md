@@ -30,7 +30,7 @@ Enter the shell by running `nix develop` (requires the `nix-command` and `flakes
 
 ## Usage
 
-First, change the current `YEAR` constant in `src/main.rs`.
+First, modify the package metadata in `Cargo.toml` and change the current `YEAR` constant in `src/main.rs`.
 
 Then, find your session cookie. To do so, go to [https://adventofcode.com](adventofcode.com), log in, and press F12. In the "Application" tab, under "Storage > Cookies > https://adventofcode.com", copy the value of the "session" cookie. Paste it into a file named `.session` at the root of the project. You can now download input files. To do so, run the subcommand `get-input`: `cargo run -- get-input 1`. The `1` stands for day 1, meaning it will download the input of day 1 of Advent of Code. Alternatively, from december 1st to 25th, you can skip the day parameter, and the program will download today's input. You can also use `--all` instead of a day parameter to download all input files.
 
