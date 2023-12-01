@@ -49,9 +49,10 @@ pub trait Day {
         Ok(input)
     }
 
+    #[allow(clippy::cast_precision_loss)]
     fn run_day(fp: &str) {
         match Self::parse_file(fp) {
-            Err(e) => println!("{:?}", e),
+            Err(e) => println!("{e:?}"),
             Ok(input) => {
                 let before1 = Instant::now();
                 println!("Part 1: {}", Self::part_1(&input));

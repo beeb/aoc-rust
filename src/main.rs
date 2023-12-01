@@ -3,12 +3,13 @@ use std::{fs, time::Instant};
 use chrono::{Datelike, Local};
 use clap::{Parser, Subcommand};
 
+#[allow(clippy::wildcard_imports)]
 use days::*;
 
 mod days;
 mod parser;
 
-const YEAR: usize = 2022;
+const YEAR: usize = 2023;
 
 #[derive(Parser)]
 #[command(author, version)]
@@ -50,7 +51,7 @@ fn main() {
                     None => {
                         println!("No day parameter specified, attempting to run today");
                         let now_day = get_today();
-                        println!("Running day {}", now_day);
+                        println!("Running day {now_day}");
                         run_day(now_day);
                     }
                 }
@@ -67,7 +68,7 @@ fn main() {
                             "No day parameter specified, attempting to download today's input"
                         );
                         let now_day = get_today();
-                        println!("Getting input for day {}", now_day);
+                        println!("Getting input for day {now_day}");
                         download_input(now_day);
                     }
                 }
@@ -92,23 +93,23 @@ fn parse_day(day: &str) -> usize {
             if (i..=25).contains(&i) {
                 i
             } else {
-                panic!("{} is not a valid day. Only days 1-25 are allowed.", i)
+                panic!("{i} is not a valid day. Only days 1-25 are allowed.")
             }
         }
-        Err(_) => {
-            panic!("{} is not a valid day. Please provide a number.", day)
+        Err(e) => {
+            panic!("Please provide a number. {day} is not a valid day: {e:?}")
         }
     }
 }
 
 fn run_all_days() {
-    (1..=25).map(run_day).collect()
+    (1..=25).for_each(run_day);
 }
 // Panics if you provide a value outside the range of 1 to 25
 fn run_day(day: usize) {
-    println!("======== DAY {} ========", day);
+    println!("======== DAY {day} ========");
     // I'd like to do this with a macro, but I'm not sure how to do it.
-    let input_fp = &format!("inputs/day{:02}.txt", day);
+    let input_fp = &format!("inputs/day{day:02}.txt");
     match day {
         1 => day01::Day01::run_day(input_fp),
         2 => day02::Day02::run_day(input_fp),
@@ -135,23 +136,23 @@ fn run_day(day: usize) {
         23 => day23::Day23::run_day(input_fp),
         24 => day24::Day24::run_day(input_fp),
         25 => day25::Day25::run_day(input_fp),
-        d => panic!("Provided unsupported day {}", d),
+        d => panic!("Provided unsupported day {d}"),
     }
 }
 
 fn download_all_input() {
-    (1..=25).map(download_input).collect()
+    (1..=25).for_each(download_input);
 }
 
 fn download_input(day: usize) {
     // Read session cookie from .session file
     let session = fs::read_to_string(".session").expect("Could not find .session file");
     let session = session.trim();
-    let url = format!("https://adventofcode.com/{}/day/{}/input", YEAR, day);
+    let url = format!("https://adventofcode.com/{YEAR}/day/{day}/input");
     let client = reqwest::blocking::Client::new();
     let response = client
         .get(url)
-        .header("cookie", format!("session={};", session))
+        .header("cookie", format!("session={session};"))
         .send()
         .unwrap();
 
@@ -159,13 +160,12 @@ fn download_input(day: usize) {
         let mut text = response.text().unwrap();
         // Remove trailing newline
         text.pop();
-        let path = format!("inputs/day{:02}.txt", day);
+        let path = format!("inputs/day{day:02}.txt");
         fs::write(&path, text).unwrap();
         println!("Successfully downloaded input to {}", &path);
     } else {
         panic!(
-            "Could not get input for day {}. Is your correct session cookie in your .session file?",
-            day
+            "Could not get input for day {day}. Is your correct session cookie in your .session file?",
         )
     }
 }
