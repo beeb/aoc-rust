@@ -56,16 +56,10 @@ pub trait Day {
             Ok(input) => {
                 let before1 = Instant::now();
                 println!("Part 1: {}", Self::part_1(&input));
-                println!(
-                    "Part 1 took {}ms",
-                    before1.elapsed().as_nanos() as f32 / 1e6
-                );
+                println!("Part 1 took {:?}", before1.elapsed());
                 let before2 = Instant::now();
                 println!("Part 2: {}", Self::part_2(&input));
-                println!(
-                    "Part 2 took {}ms",
-                    before2.elapsed().as_nanos() as f32 / 1e6
-                );
+                println!("Part 2 took {:?}", before2.elapsed());
             }
         }
     }
