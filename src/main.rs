@@ -1,4 +1,4 @@
-use std::{fs, time::Instant};
+use std::fs;
 
 use anyhow::{bail, Context as _, Result};
 use chrono::{Datelike, Local};
@@ -47,18 +47,15 @@ fn main() -> Result<()> {
     match cli.command {
         Commands::Run { day, all } => {
             if all {
-                run_all_days();
-                return Ok(());
+                return run_all_days();
             }
             if let Some(day) = day {
-                run_day(parse_day(&day)?);
-                return Ok(());
+                return run_day(parse_day(&day)?);
             }
             println!("No day parameter specified, attempting to run today's code");
             let now_day = get_today()?;
             println!("Running day {now_day}");
-            run_day(now_day);
-            Ok(())
+            run_day(now_day)
         }
         Commands::GetInput { day, all } => {
             if all {
@@ -95,11 +92,11 @@ fn parse_day(day: &str) -> Result<u32> {
     Ok(out)
 }
 
-fn run_all_days() {
-    (1..=25).for_each(run_day);
+fn run_all_days() -> Result<()> {
+    (1..=25).try_for_each(run_day)
 }
 
-fn run_day(day: u32) {
+fn run_day(day: u32) -> Result<()> {
     println!("======== DAY {day} ========");
     // I'd like to do this with a macro, but I'm not sure how to do it.
     let input_fp = &format!("inputs/day{day:02}.txt");

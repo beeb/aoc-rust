@@ -1,9 +1,7 @@
-use std::{fmt::Display, fs::read_to_string};
+use std::{fmt::Display, fs, path::Path, time::Instant};
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use winnow::{PResult, Parser as _};
-
-use crate::Instant;
 
 pub mod day01;
 pub mod day02;
@@ -44,26 +42,25 @@ pub trait Day {
 
     fn part_2(input: &Self::Input) -> Self::Output2;
 
-    fn parse_file(fp: &str) -> Result<Self::Input> {
-        let input_string = read_to_string(fp)?;
+    fn parse_file(path: impl AsRef<Path>) -> Result<Self::Input> {
+        let input_string = fs::read_to_string(path).context("reading the input file")?;
         let input = Self::parser
             .parse(&input_string)
-            .map_err(|e| anyhow!(e.to_string()))?;
+            .map_err(|e| anyhow!(e.to_string()))
+            .context("running the parser")?;
         Ok(input)
     }
 
     #[allow(clippy::cast_precision_loss)]
-    fn run_day(fp: &str) {
-        match Self::parse_file(fp) {
-            Err(e) => println!("{e:?}"),
-            Ok(input) => {
-                let before1 = Instant::now();
-                println!("Part 1: {}", Self::part_1(&input));
-                println!("Part 1 took {:?}", before1.elapsed());
-                let before2 = Instant::now();
-                println!("Part 2: {}", Self::part_2(&input));
-                println!("Part 2 took {:?}", before2.elapsed());
-            }
-        }
+    fn run_day(path: impl AsRef<Path>) -> Result<()> {
+        let input = Self::parse_file(path)?;
+
+        let before1 = Instant::now();
+        println!("Part 1: {}", Self::part_1(&input));
+        println!("Part 1 took {:?}", before1.elapsed());
+        let before2 = Instant::now();
+        println!("Part 2: {}", Self::part_2(&input));
+        println!("Part 2 took {:?}", before2.elapsed());
+        Ok(())
     }
 }
