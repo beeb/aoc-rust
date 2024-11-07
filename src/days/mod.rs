@@ -1,8 +1,9 @@
-use crate::parser::MyErr;
+use std::{fmt::Display, fs::read_to_string};
+
+use anyhow::{anyhow, Result};
+use winnow::{PResult, Parser as _};
+
 use crate::Instant;
-use nom::IResult;
-use std::fmt::Display;
-use std::fs::read_to_string;
 
 pub mod day01;
 pub mod day02;
@@ -33,7 +34,7 @@ pub mod day25;
 pub trait Day {
     type Input;
 
-    fn parse(input_string: &str) -> IResult<&str, Self::Input>;
+    fn parser(input_string: &mut &str) -> PResult<Self::Input>;
 
     type Output1: Display;
 
@@ -43,9 +44,11 @@ pub trait Day {
 
     fn part_2(input: &Self::Input) -> Self::Output2;
 
-    fn parse_file(fp: &str) -> Result<Self::Input, MyErr> {
+    fn parse_file(fp: &str) -> Result<Self::Input> {
         let input_string = read_to_string(fp)?;
-        let (_, input) = Self::parse(&input_string)?;
+        let input = Self::parser
+            .parse(&input_string)
+            .map_err(|e| anyhow!(e.to_string()))?;
         Ok(input)
     }
 

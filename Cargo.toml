@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["Your Name <your@email.com>"]
 
 [dependencies]
+anyhow = "1.0.93"
 chrono = "0.4"
 clap = { version = "4", features = ["derive"] }
 itertools = "0.13"
@@ -13,3 +14,4 @@ reqwest = { version = "0.12", default-features = false, features = [
     "blocking",
     "rustls-tls",
 ] }
+winnow = "0.6"

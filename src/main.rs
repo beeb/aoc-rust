@@ -1,5 +1,6 @@
 use std::{fs, time::Instant};
 
+use anyhow::{bail, Context as _, Result};
 use chrono::{Datelike, Local};
 use clap::{Parser, Subcommand};
 
@@ -7,9 +8,8 @@ use clap::{Parser, Subcommand};
 use days::*;
 
 mod days;
-mod parser;
 
-const YEAR: usize = 2023;
+const YEAR: usize = 2024;
 
 #[derive(Parser)]
 #[command(author, version)]
@@ -22,7 +22,10 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Run {
-        #[arg(value_name = "DAY", help = "The number of the day you want to run")]
+        #[arg(
+            value_name = "DAY",
+            help = "The number of the day you want to run (1-25)"
+        )]
         day: Option<String>,
         #[arg(short, long, help = "Runs all days sequentially")]
         all: bool,
@@ -30,7 +33,7 @@ enum Commands {
     GetInput {
         #[arg(
             value_name = "DAY",
-            help = "The number of the day you want to get the input for"
+            help = "The number of the day you want to get the input for (1-25)"
         )]
         day: Option<String>,
         #[arg(short, long, help = "Downloads input for all days sequentially")]
@@ -38,75 +41,65 @@ enum Commands {
     },
 }
 
-fn main() {
+fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    match &cli.command {
+    match cli.command {
         Commands::Run { day, all } => {
-            if *all {
+            if all {
                 run_all_days();
-            } else {
-                match day {
-                    Some(day) => run_day(parse_day(day)),
-                    None => {
-                        println!("No day parameter specified, attempting to run today");
-                        let now_day = get_today();
-                        println!("Running day {now_day}");
-                        run_day(now_day);
-                    }
-                }
+                return Ok(());
             }
+            if let Some(day) = day {
+                run_day(parse_day(&day)?);
+                return Ok(());
+            }
+            println!("No day parameter specified, attempting to run today's code");
+            let now_day = get_today()?;
+            println!("Running day {now_day}");
+            run_day(now_day);
+            Ok(())
         }
         Commands::GetInput { day, all } => {
-            if *all {
-                download_all_input();
-            } else {
-                match day {
-                    Some(day) => download_input(parse_day(day)),
-                    None => {
-                        println!(
-                            "No day parameter specified, attempting to download today's input"
-                        );
-                        let now_day = get_today();
-                        println!("Getting input for day {now_day}");
-                        download_input(now_day);
-                    }
-                }
+            if all {
+                return download_all_inputs();
             }
+            if let Some(day) = day {
+                return download_input(parse_day(&day)?);
+            }
+            println!("No day parameter specified, attempting to download today's input");
+            let now_day = get_today()?;
+            println!("Getting input for day {now_day}");
+            download_input(now_day)
         }
     }
 }
 
-fn get_today() -> usize {
+fn get_today() -> Result<u32> {
     let now = Local::now();
     let now_day = now.day();
     if now.month() == 12 && (1..=25).contains(&now_day) {
-        now_day.try_into().unwrap()
+        Ok(now_day)
     } else {
-        panic!("Today is not a valid Advent of Code day. Please specify a day");
+        bail!("Today is not a valid Advent of Code day. Please specify a day");
     }
 }
 
-fn parse_day(day: &str) -> usize {
-    match day.parse() {
-        Ok(i) => {
-            if (i..=25).contains(&i) {
-                i
-            } else {
-                panic!("{i} is not a valid day. Only days 1-25 are allowed.")
-            }
-        }
-        Err(e) => {
-            panic!("Please provide a number. {day} is not a valid day: {e:?}")
-        }
+fn parse_day(day: &str) -> Result<u32> {
+    let out: u32 = day
+        .parse()
+        .context("reading the day parameter as an integer")?;
+    if !(1..=25).contains(&out) {
+        bail!("Please provide a valid day. Only days 1-25 are allowed.");
     }
+    Ok(out)
 }
 
 fn run_all_days() {
     (1..=25).for_each(run_day);
 }
-// Panics if you provide a value outside the range of 1 to 25
-fn run_day(day: usize) {
+
+fn run_day(day: u32) {
     println!("======== DAY {day} ========");
     // I'd like to do this with a macro, but I'm not sure how to do it.
     let input_fp = &format!("inputs/day{day:02}.txt");
@@ -140,32 +133,29 @@ fn run_day(day: usize) {
     }
 }
 
-fn download_all_input() {
-    (1..=25).for_each(download_input);
+fn download_all_inputs() -> Result<()> {
+    (1..=25).try_for_each(download_input)
 }
 
-fn download_input(day: usize) {
+fn download_input(day: u32) -> Result<()> {
     // Read session cookie from .session file
-    let session = fs::read_to_string(".session").expect("Could not find .session file");
+    let session = fs::read_to_string(".session").context("reading .session file")?;
     let session = session.trim();
     let url = format!("https://adventofcode.com/{YEAR}/day/{day}/input");
+
     let client = reqwest::blocking::Client::new();
     let response = client
         .get(url)
         .header("cookie", format!("session={session};"))
-        .send()
-        .unwrap();
+        .send()?
+        .error_for_status()
+        .with_context(|| format!("retrieving the puzzle for {day}. Do you have the correct session cookie in the .session file?"))?;
 
-    if response.status().is_success() {
-        let mut text = response.text().unwrap();
-        // Remove trailing newline
-        text.pop();
-        let path = format!("inputs/day{day:02}.txt");
-        fs::write(&path, text).unwrap();
-        println!("Successfully downloaded input to {}", &path);
-    } else {
-        panic!(
-            "Could not get input for day {day}. Is your correct session cookie in your .session file?",
-        )
-    }
+    let mut text = response.text()?;
+    // remove trailing newline
+    text.pop();
+    let path = format!("inputs/day{day:02}.txt");
+    fs::write(&path, text)?;
+    println!("Successfully downloaded input to {}", &path);
+    Ok(())
 }

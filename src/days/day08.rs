@@ -1,4 +1,4 @@
-use nom::IResult;
+use winnow::PResult;
 
 use crate::days::Day;
 
@@ -7,7 +7,7 @@ pub struct Day08;
 impl Day for Day08 {
     type Input = String;
 
-    fn parse(_input: &str) -> IResult<&str, Self::Input> {
+    fn parser(_input: &mut &str) -> PResult<Self::Input> {
         unimplemented!("parser")
     }
 
