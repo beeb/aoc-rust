@@ -99,34 +99,34 @@ fn run_all_days() -> Result<()> {
 fn run_day(day: u32) -> Result<()> {
     println!("======== DAY {day} ========");
     // I'd like to do this with a macro, but I'm not sure how to do it.
-    let input_fp = &format!("inputs/day{day:02}.txt");
+    let input_file = &format!("inputs/day{day:02}.txt");
     match day {
-        1 => day01::Day01::run_day(input_fp),
-        2 => day02::Day02::run_day(input_fp),
-        3 => day03::Day03::run_day(input_fp),
-        4 => day04::Day04::run_day(input_fp),
-        5 => day05::Day05::run_day(input_fp),
-        6 => day06::Day06::run_day(input_fp),
-        7 => day07::Day07::run_day(input_fp),
-        8 => day08::Day08::run_day(input_fp),
-        9 => day09::Day09::run_day(input_fp),
-        10 => day10::Day10::run_day(input_fp),
-        11 => day11::Day11::run_day(input_fp),
-        12 => day12::Day12::run_day(input_fp),
-        13 => day13::Day13::run_day(input_fp),
-        14 => day14::Day14::run_day(input_fp),
-        15 => day15::Day15::run_day(input_fp),
-        16 => day16::Day16::run_day(input_fp),
-        17 => day17::Day17::run_day(input_fp),
-        18 => day18::Day18::run_day(input_fp),
-        19 => day19::Day19::run_day(input_fp),
-        20 => day20::Day20::run_day(input_fp),
-        21 => day21::Day21::run_day(input_fp),
-        22 => day22::Day22::run_day(input_fp),
-        23 => day23::Day23::run_day(input_fp),
-        24 => day24::Day24::run_day(input_fp),
-        25 => day25::Day25::run_day(input_fp),
-        d => panic!("Provided unsupported day {d}"),
+        1 => day01::Day01::run_day(input_file),
+        2 => day02::Day02::run_day(input_file),
+        3 => day03::Day03::run_day(input_file),
+        4 => day04::Day04::run_day(input_file),
+        5 => day05::Day05::run_day(input_file),
+        6 => day06::Day06::run_day(input_file),
+        7 => day07::Day07::run_day(input_file),
+        8 => day08::Day08::run_day(input_file),
+        9 => day09::Day09::run_day(input_file),
+        10 => day10::Day10::run_day(input_file),
+        11 => day11::Day11::run_day(input_file),
+        12 => day12::Day12::run_day(input_file),
+        13 => day13::Day13::run_day(input_file),
+        14 => day14::Day14::run_day(input_file),
+        15 => day15::Day15::run_day(input_file),
+        16 => day16::Day16::run_day(input_file),
+        17 => day17::Day17::run_day(input_file),
+        18 => day18::Day18::run_day(input_file),
+        19 => day19::Day19::run_day(input_file),
+        20 => day20::Day20::run_day(input_file),
+        21 => day21::Day21::run_day(input_file),
+        22 => day22::Day22::run_day(input_file),
+        23 => day23::Day23::run_day(input_file),
+        24 => day24::Day24::run_day(input_file),
+        25 => day25::Day25::run_day(input_file),
+        d => bail!("provided unsupported day {d}"),
     }
 }
 
@@ -144,15 +144,15 @@ fn download_input(day: u32) -> Result<()> {
     let response = client
         .get(url)
         .header("cookie", format!("session={session};"))
-        .send()?
+        .send().context("sending HTTP request to download input")?
         .error_for_status()
-        .with_context(|| format!("retrieving the puzzle for {day}. Do you have the correct session cookie in the .session file?"))?;
+        .with_context(|| format!("retrieving the input for day {day}. Do you have the correct session cookie in the .session file?"))?;
 
     let mut text = response.text()?;
     // remove trailing newline
     text.pop();
     let path = format!("inputs/day{day:02}.txt");
-    fs::write(&path, text)?;
+    fs::write(&path, text).context("writing input to file")?;
     println!("Successfully downloaded input to {}", &path);
     Ok(())
 }
