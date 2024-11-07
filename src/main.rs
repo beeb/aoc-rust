@@ -30,7 +30,7 @@ enum Commands {
         #[arg(short, long, help = "Runs all days sequentially")]
         all: bool,
     },
-    GetInput {
+    Get {
         #[arg(
             value_name = "DAY",
             help = "The number of the day you want to get the input for (1-25)"
@@ -57,7 +57,7 @@ fn main() -> Result<()> {
             println!("Running day {now_day}");
             run_day(now_day)
         }
-        Commands::GetInput { day, all } => {
+        Commands::Get { day, all } => {
             if all {
                 return download_all_inputs();
             }
