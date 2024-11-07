@@ -6,6 +6,15 @@ pub enum MyErr {
     ParseError(Err<Error<String>>),
 }
 
+impl std::fmt::Display for MyErr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MyErr::FileError(e) => write!(f, "File IO error: {e:?}"),
+            MyErr::ParseError(e) => write!(f, "Parser error: {e:?}"),
+        }
+    }
+}
+
 impl From<Err<Error<&str>>> for MyErr {
     fn from(e: Err<Error<&str>>) -> MyErr {
         let inner_err = match e {

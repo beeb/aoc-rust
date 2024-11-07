@@ -1,5 +1,3 @@
-Largely copied from [RikvanToor/aoc-rust-template](https://github.com/RikvanToor/aoc-rust-template), upgraded for `clap` v4
-
 # Advent of Code Rust template
 
 This is a basic template you can fork and implement your Advent of Code solutions in. `src/days/` contains a source file for all 25 days, where an implementation of a trait `Day` should be written.
