@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, ops::RangeInclusive};
 
 use anyhow::{bail, Context as _, Result};
 use chrono::{Datelike, Local};
@@ -9,8 +9,12 @@ use days::*;
 
 mod days;
 
-const YEAR: usize = 2024;
+const YEAR: usize = 2024; // change this if needed
+const CLI_DAY_RANGE: RangeInclusive<i64> = 1..=25;
+const VALID_DAY_RANGE: RangeInclusive<u32> =
+    (*CLI_DAY_RANGE.start() as u32)..=(*CLI_DAY_RANGE.end() as u32);
 
+/// Advent of Code
 #[derive(Parser)]
 #[command(author, version)]
 #[command(propagate_version = true)]
@@ -21,21 +25,23 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Run the code for one or all days
     Run {
         #[arg(
-            value_name = "DAY",
-            help = "The number of the day you want to run (1-25)"
-        )]
-        day: Option<String>,
+            value_parser = clap::value_parser!(u32).range(CLI_DAY_RANGE),
+            help = "The number of the day you want to run (1-25)")
+        ]
+        day: Option<u32>,
         #[arg(short, long, help = "Runs all days sequentially")]
         all: bool,
     },
+    /// Get the input file for one or all days
     Get {
         #[arg(
-            value_name = "DAY",
-            help = "The number of the day you want to get the input for (1-25)"
-        )]
-        day: Option<String>,
+            value_parser = clap::value_parser!(u32).range(CLI_DAY_RANGE),
+            help = "The number of the day you want to get the input for (1-25)")
+        ]
+        day: Option<u32>,
         #[arg(short, long, help = "Downloads input for all days sequentially")]
         all: bool,
     },
@@ -50,7 +56,7 @@ fn main() -> Result<()> {
                 return run_all_days();
             }
             if let Some(day) = day {
-                return run_day(parse_day(&day)?);
+                return run_day(day);
             }
             println!("No day parameter specified, attempting to run today's code");
             let now_day = get_today()?;
@@ -62,7 +68,7 @@ fn main() -> Result<()> {
                 return download_all_inputs();
             }
             if let Some(day) = day {
-                return download_input(parse_day(&day)?);
+                return download_input(day);
             }
             println!("No day parameter specified, attempting to download today's input");
             let now_day = get_today()?;
@@ -75,25 +81,16 @@ fn main() -> Result<()> {
 fn get_today() -> Result<u32> {
     let now = Local::now();
     let now_day = now.day();
-    if now.month() == 12 && (1..=25).contains(&now_day) {
+    if now.month() == 12 && VALID_DAY_RANGE.contains(&now_day) {
         Ok(now_day)
     } else {
         bail!("Today is not a valid Advent of Code day. Please specify a day");
     }
 }
 
-fn parse_day(day: &str) -> Result<u32> {
-    let out: u32 = day
-        .parse()
-        .context("reading the day parameter as an integer")?;
-    if !(1..=25).contains(&out) {
-        bail!("Please provide a valid day. Only days 1-25 are allowed.");
-    }
-    Ok(out)
-}
-
+#[allow(const_item_mutation)]
 fn run_all_days() -> Result<()> {
-    (1..=25).try_for_each(run_day)
+    VALID_DAY_RANGE.try_for_each(run_day)
 }
 
 fn run_day(day: u32) -> Result<()> {
@@ -130,8 +127,9 @@ fn run_day(day: u32) -> Result<()> {
     }
 }
 
+#[allow(const_item_mutation)]
 fn download_all_inputs() -> Result<()> {
-    (1..=25).try_for_each(download_input)
+    VALID_DAY_RANGE.try_for_each(download_input)
 }
 
 fn download_input(day: u32) -> Result<()> {
