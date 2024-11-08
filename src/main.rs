@@ -146,9 +146,7 @@ fn download_input(day: u32) -> Result<()> {
         .error_for_status()
         .with_context(|| format!("retrieving the input for day {day}. Do you have the correct session cookie in the .session file?"))?;
 
-    let mut text = response.text()?;
-    // remove trailing newline
-    text.pop();
+    let text = response.text()?;
     let path = format!("inputs/day{day:02}.txt");
     fs::write(&path, text).context("writing input to file")?;
     println!("Successfully downloaded input to {}", &path);
