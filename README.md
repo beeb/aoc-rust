@@ -7,7 +7,7 @@ for all 25 days, where an implementation of a trait `Day` should be written.
 pub trait Day {
   type Input;
 
-  fn parser(input_string: &mut &str) -> PResult<Self::Input>;
+  fn parser(input_string: &mut &str) -> Result<Self::Input>;
 
   type Output1: Display;
 
