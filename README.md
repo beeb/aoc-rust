@@ -1,7 +1,8 @@
 # Advent of Code Rust template
 
 This is a basic template you can fork and implement your Advent of Code solutions in. `src/days/` contains a source file
-for all 25 days, where an implementation of a trait `Day` should be written.
+for all 12 days, where an implementation of a trait `Day` should be written. If using this template for an older
+challenge, you'll need to add the missing day modules for days 13-25 and modify the `match` in `run_day`.
 
 ```rust
 pub trait Day {
@@ -35,7 +36,7 @@ Then, find your session cookie. To do so, go to [https://adventofcode.com](adven
 the "Application" tab, under "Storage > Cookies > https://adventofcode.com", copy the value of the "session" cookie.
 Paste it into a file named `.session` at the root of the project. You can now download input files. To do so, run the
 subcommand `get`: `cargo run -- get 1`. The `1` stands for day 1, meaning it will download the input of day
-1 of Advent of Code. Alternatively, from December 1st to 25th, you can skip the day parameter, and the program will
+1 of Advent of Code. Alternatively, from December 1st to 12th, you can skip the day parameter, and the program will
 download today's input. You can also use `--all` instead of a day parameter to download all input files.
 
 To run your implementation, use `cargo run [-r] -- run 1` (`-r` for release profile) to run day 1. Just like
