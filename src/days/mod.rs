@@ -1,6 +1,6 @@
 use std::{fmt::Display, fs, path::Path, time::Instant};
 
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use winnow::Parser as _;
 
 pub mod day01;
