@@ -24,7 +24,7 @@ The parsers should be written using [winnow](https://docs.rs/winnow/latest/winno
 ## Dev shell
 
 A `flake.nix` provides a [nix](https://nixos.org/) dev shell with the rust toolchain installed.
-Enter the shell by running `nix develop` (requires the `nix-command` and `flakes`
+Enter the shell by running `nix develop --impure` (requires the `nix-command` and `flakes`
 [experimental features](https://nixos.wiki/wiki/Flakes))
 
 ## Usage
