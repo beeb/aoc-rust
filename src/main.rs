@@ -9,8 +9,8 @@ use days::*;
 
 mod days;
 
-const YEAR: usize = 2024; // change this if needed
-const CLI_DAY_RANGE: RangeInclusive<i64> = 1..=25;
+const YEAR: usize = 2025; // change this if needed, add the missing day modules if < 2025
+const CLI_DAY_RANGE: RangeInclusive<i64> = if YEAR < 2025 { 1..=25 } else { 1..=12 };
 const VALID_DAY_RANGE: RangeInclusive<u32> =
     (*CLI_DAY_RANGE.start() as u32)..=(*CLI_DAY_RANGE.end() as u32);
 
@@ -29,7 +29,7 @@ enum Commands {
     Run {
         #[arg(
             value_parser = clap::value_parser!(u32).range(CLI_DAY_RANGE),
-            help = "The number of the day you want to run (1-25)")
+            help = "The number of the day you want to run")
         ]
         day: Option<u32>,
         #[arg(short, long, help = "Runs all days sequentially")]
@@ -39,7 +39,7 @@ enum Commands {
     Get {
         #[arg(
             value_parser = clap::value_parser!(u32).range(CLI_DAY_RANGE),
-            help = "The number of the day you want to get the input for (1-25)")
+            help = "The number of the day you want to get the input for")
         ]
         day: Option<u32>,
         #[arg(short, long, help = "Downloads input for all days sequentially")]
@@ -95,7 +95,6 @@ fn run_all_days() -> Result<()> {
 
 fn run_day(day: u32) -> Result<()> {
     println!("======== DAY {day} ========");
-    // I'd like to do this with a macro, but I'm not sure how to do it.
     let input_file = &format!("inputs/day{day:02}.txt");
     match day {
         1 => day01::Day01::run_day(input_file),
@@ -110,19 +109,6 @@ fn run_day(day: u32) -> Result<()> {
         10 => day10::Day10::run_day(input_file),
         11 => day11::Day11::run_day(input_file),
         12 => day12::Day12::run_day(input_file),
-        13 => day13::Day13::run_day(input_file),
-        14 => day14::Day14::run_day(input_file),
-        15 => day15::Day15::run_day(input_file),
-        16 => day16::Day16::run_day(input_file),
-        17 => day17::Day17::run_day(input_file),
-        18 => day18::Day18::run_day(input_file),
-        19 => day19::Day19::run_day(input_file),
-        20 => day20::Day20::run_day(input_file),
-        21 => day21::Day21::run_day(input_file),
-        22 => day22::Day22::run_day(input_file),
-        23 => day23::Day23::run_day(input_file),
-        24 => day24::Day24::run_day(input_file),
-        25 => day25::Day25::run_day(input_file),
         d => bail!("provided unsupported day {d}"),
     }
 }
