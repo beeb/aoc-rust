@@ -4,7 +4,6 @@ use anyhow::{Context as _, Result, bail};
 use chrono::{Datelike, Local};
 use clap::{Parser, Subcommand};
 
-#[allow(clippy::wildcard_imports)]
 use days::*;
 
 mod days;
@@ -88,7 +87,7 @@ fn get_today() -> Result<u32> {
     }
 }
 
-#[allow(const_item_mutation)]
+#[expect(const_item_mutation)]
 fn run_all_days() -> Result<()> {
     VALID_DAY_RANGE.try_for_each(run_day)
 }
@@ -113,7 +112,7 @@ fn run_day(day: u32) -> Result<()> {
     }
 }
 
-#[allow(const_item_mutation)]
+#[expect(const_item_mutation)]
 fn download_all_inputs() -> Result<()> {
     VALID_DAY_RANGE.try_for_each(download_input)
 }

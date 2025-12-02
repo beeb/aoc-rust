@@ -38,7 +38,6 @@ pub trait Day {
         Ok(input)
     }
 
-    #[allow(clippy::cast_precision_loss)]
     fn run_day(path: impl AsRef<Path>) -> anyhow::Result<()> {
         let input = Self::parse_file(path)?;
 
