@@ -123,15 +123,15 @@ fn download_input(day: u32) -> Result<()> {
     let session = session.trim();
     let url = format!("https://adventofcode.com/{YEAR}/day/{day}/input");
 
-    let client = reqwest::blocking::Client::new();
-    let response = client
-        .get(url)
-        .header("cookie", format!("session={session};"))
-        .send().context("sending HTTP request to download input")?
-        .error_for_status()
+    let mut response = ureq::get(url)
+        .header(ureq::http::header::COOKIE, format!("session={session};"))
+        .call()
         .with_context(|| format!("retrieving the input for day {day}. Do you have the correct session cookie in the .session file?"))?;
+    let text = response
+        .body_mut()
+        .read_to_string()
+        .context("decoding response body as text")?;
 
-    let text = response.text().context("decoding response body as text")?;
     let path = format!("inputs/day{day:02}.txt");
     fs::write(&path, text).context("writing input to file")?;
     println!("Successfully downloaded input to {}", &path);

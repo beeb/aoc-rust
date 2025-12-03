@@ -9,8 +9,5 @@ anyhow = "1.0.93"
 chrono = "0.4"
 clap = { version = "4", features = ["derive"] }
 itertools = "0.14"
-reqwest = { version = "0.12", default-features = false, features = [
-    "blocking",
-    "rustls-tls",
-] }
+ureq = "3.1.4"
 winnow = "0.7"
